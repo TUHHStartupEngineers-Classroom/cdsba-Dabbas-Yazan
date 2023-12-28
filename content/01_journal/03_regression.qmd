@@ -7,7 +7,7 @@ format:
       code-line-numbers: true
       df-print: paged
 ---
----
+
 
 ```{r}
 
@@ -22,6 +22,7 @@ library(modelr)
 
 ----
 ```{r}
+
 df <- readRDS("C:/Master Degree/Core Qualification_Compulsory Courses/Business/Causal_Data_Science/Data/Causal_Data_Science_Data/car_prices.rds")
 
 # Be familiar with the data

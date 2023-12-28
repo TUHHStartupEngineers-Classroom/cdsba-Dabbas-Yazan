@@ -100,7 +100,7 @@ cat("Correlation Value:", correlation_value, "\n")
 
 ::: {.callout-important appearance="minimal"} 
 
--   **The standardized scale of the correlation coefficient makes comparison easier. The fact that it goes from -1 to 1 gives for a clear grasp of the relationship's strength and direction.**
+-   **The standardized scale of the correlation coefficient makes comparison easier. The fact that it goes from `-1` to `1` gives for a clear grasp of the relationship's strength and direction.**
 
 :::
  

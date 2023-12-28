@@ -11,7 +11,7 @@ format:
 
 ```{r}
 
-# Loading the ggplot2 library
+# Loading the required library
 library(ggplot2)
 
 ```

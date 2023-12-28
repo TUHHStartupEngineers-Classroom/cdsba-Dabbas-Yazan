@@ -9,8 +9,6 @@ format:
 ---
 
 ```{r}
-#|echo: false
-
 
 # Import the required Libraries 
 library(tidyverse)

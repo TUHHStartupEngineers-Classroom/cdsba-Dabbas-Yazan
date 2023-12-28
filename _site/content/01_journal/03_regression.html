@@ -220,7 +220,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<hr>
 <div class="cell" data-hash="03_regression_cache/html/unnamed-chunk-1_4cc9bb41b8af47b23a3668001ca44945">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># Load required libraries</span></span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">library</span>(dplyr)</span>
@@ -228,52 +227,70 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="load-the-data-and-check-the-dimensions" class="level4">
 <h4 class="anchored" data-anchor-id="load-the-data-and-check-the-dimensions"><strong>Load the Data and Check the Dimensions</strong></h4>
-<table class="table">
-<colgroup>
-<col style="width: 6%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">::: {.cell hash=‘03_regression_cache/html/unnamed-chunk-2_4d8836eb07dec817e10053d53133ab34’}</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">::: {.cell hash=‘03_regression_cache/html/unnamed-chunk-3_d9aa80a203159189aa3778c6f16f7ba1’}</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>{.r .cell-code} ## Check what data type the data has col_names &lt;- lapply(df, colnames) first_element &lt;- head(df$carwidth, 1) cat("carwidth's type is ", typeof(first_element), "\n")</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">::: {.cell-output .cell-output-stdout}</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>{.r .cell-code} first_element &lt;- head(df$carbody, 1) cat("carbody's type is ", typeof(first_element), "\n")</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">::: {.cell-output .cell-output-stdout}</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"><code>{.r .cell-code} cat("Two types in the data: character and double")</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">::: {.cell-output .cell-output-stdout}</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">#### <strong>Choose one Regressor <code>(horsepower)</code></strong></td>
-</tr>
-</tbody>
-</table>
+<hr>
+<div class="cell" data-hash="03_regression_cache/html/unnamed-chunk-2_dd24a0709bdd00db67a3a3030604093e">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>df <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"C:/Master Degree/Core Qualification_Compulsory Courses/Business/Causal_Data_Science/Data/Causal_Data_Science_Data/car_prices.rds"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a></span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co"># Be familiar with the data</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="fu">head</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["aspiration"],"name":[1],"type":["chr"],"align":["left"]},{"label":["doornumber"],"name":[2],"type":["chr"],"align":["left"]},{"label":["carbody"],"name":[3],"type":["chr"],"align":["left"]},{"label":["drivewheel"],"name":[4],"type":["chr"],"align":["left"]},{"label":["enginelocation"],"name":[5],"type":["chr"],"align":["left"]},{"label":["wheelbase"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["carlength"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["carwidth"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["carheight"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["curbweight"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["enginetype"],"name":[11],"type":["chr"],"align":["left"]},{"label":["cylindernumber"],"name":[12],"type":["chr"],"align":["left"]},{"label":["enginesize"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["fuelsystem"],"name":[14],"type":["chr"],"align":["left"]},{"label":["boreratio"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["stroke"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["compressionratio"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["horsepower"],"name":[18],"type":["dbl"],"align":["right"]},{"label":["peakrpm"],"name":[19],"type":["dbl"],"align":["right"]},{"label":["citympg"],"name":[20],"type":["dbl"],"align":["right"]},{"label":["highwaympg"],"name":[21],"type":["dbl"],"align":["right"]},{"label":["price"],"name":[22],"type":["dbl"],"align":["right"]}],"data":[{"1":"std","2":"two","3":"convertible","4":"rwd","5":"front","6":"88.6","7":"168.8","8":"64.1","9":"48.8","10":"2548","11":"dohc","12":"four","13":"130","14":"mpfi","15":"3.47","16":"2.68","17":"9.0","18":"111","19":"5000","20":"21","21":"27","22":"13495"},{"1":"std","2":"two","3":"convertible","4":"rwd","5":"front","6":"88.6","7":"168.8","8":"64.1","9":"48.8","10":"2548","11":"dohc","12":"four","13":"130","14":"mpfi","15":"3.47","16":"2.68","17":"9.0","18":"111","19":"5000","20":"21","21":"27","22":"16500"},{"1":"std","2":"two","3":"hatchback","4":"rwd","5":"front","6":"94.5","7":"171.2","8":"65.5","9":"52.4","10":"2823","11":"ohcv","12":"six","13":"152","14":"mpfi","15":"2.68","16":"3.47","17":"9.0","18":"154","19":"5000","20":"19","21":"26","22":"16500"},{"1":"std","2":"four","3":"sedan","4":"fwd","5":"front","6":"99.8","7":"176.6","8":"66.2","9":"54.3","10":"2337","11":"ohc","12":"four","13":"109","14":"mpfi","15":"3.19","16":"3.40","17":"10.0","18":"102","19":"5500","20":"24","21":"30","22":"13950"},{"1":"std","2":"four","3":"sedan","4":"4wd","5":"front","6":"99.4","7":"176.6","8":"66.4","9":"54.3","10":"2824","11":"ohc","12":"five","13":"136","14":"mpfi","15":"3.19","16":"3.40","17":"8.0","18":"115","19":"5500","20":"18","21":"22","22":"17450"},{"1":"std","2":"two","3":"sedan","4":"fwd","5":"front","6":"99.8","7":"177.3","8":"66.3","9":"53.1","10":"2507","11":"ohc","12":"five","13":"136","14":"mpfi","15":"3.19","16":"3.40","17":"8.5","18":"110","19":"5500","20":"19","21":"25","22":"15250"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">#  Check the number of rows and columns </span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>dim_data <span class="ot">&lt;-</span> <span class="fu">dim</span>(df)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>rows <span class="ot">&lt;-</span> dim_data[<span class="dv">1</span>]</span>
+<span id="cb3-4"><a href="#cb3-4"></a>columns <span class="ot">&lt;-</span> dim_data[<span class="dv">2</span>]</span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="fu">cat</span>(<span class="st">"Rows Number: "</span>, rows, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; Rows Number:  181</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">cat</span>(<span class="st">"Columns Number: "</span>, columns, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; Columns Number:  22</code></pre>
+</div>
+</div>
+</section>
+<section id="get-a-more-detailed-look-at-the-data" class="level4">
+<h4 class="anchored" data-anchor-id="get-a-more-detailed-look-at-the-data"><strong>Get a more detailed look at the data</strong></h4>
+<hr>
+<div class="cell" data-hash="03_regression_cache/html/unnamed-chunk-3_d9aa80a203159189aa3778c6f16f7ba1">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a> <span class="do">## Check what data type the data has </span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>col_names <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df, colnames)</span>
+<span id="cb7-3"><a href="#cb7-3"></a>first_element <span class="ot">&lt;-</span> <span class="fu">head</span>(df<span class="sc">$</span>carwidth, <span class="dv">1</span>)</span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="fu">cat</span>(<span class="st">"carwidth's type is "</span>, <span class="fu">typeof</span>(first_element), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; carwidth's type is  double</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>first_element <span class="ot">&lt;-</span> <span class="fu">head</span>(df<span class="sc">$</span>carbody, <span class="dv">1</span>)</span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="fu">cat</span>(<span class="st">"carbody's type is "</span>, <span class="fu">typeof</span>(first_element), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; carbody's type is  character</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="fu">cat</span>(<span class="st">"Two types in the data: character and double"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#&gt; Two types in the data: character and double</code></pre>
+</div>
+</div>
+</section>
+<section id="choose-one-regressor-horsepower" class="level4">
+<h4 class="anchored" data-anchor-id="choose-one-regressor-horsepower"><strong>Choose one Regressor <code>(horsepower)</code></strong></h4>
+<hr>
 <div class="cell" data-hash="03_regression_cache/html/unnamed-chunk-4_dc4247eecbd5f8ed62e9aebaae28ef72">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># Display the structure of the data frame</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a>df[] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df, as.numeric)</span>
-<span id="cb2-3"><a href="#cb2-3"></a>df <span class="sc">%&gt;%</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a>  <span class="co"># Calculate the correlation matrix</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a>  <span class="fu">cor</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb2-6"><a href="#cb2-6"></a>  <span class="co"># Round the correlation values to 2 decimal places</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a>  <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb2-8"><a href="#cb2-8"></a>  <span class="co"># Extract the lower triangular part of the matrix</span></span>
-<span id="cb2-9"><a href="#cb2-9"></a>  Matrix<span class="sc">::</span><span class="fu">tril</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Display the structure of the data frame</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>df[] <span class="ot">&lt;-</span> <span class="fu">lapply</span>(df, as.numeric)</span>
+<span id="cb13-3"><a href="#cb13-3"></a>df <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="co"># Calculate the correlation matrix</span></span>
+<span id="cb13-5"><a href="#cb13-5"></a>  <span class="fu">cor</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb13-6"><a href="#cb13-6"></a>  <span class="co"># Round the correlation values to 2 decimal places</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a>  <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-8"><a href="#cb13-8"></a>  <span class="co"># Extract the lower triangular part of the matrix</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a>  Matrix<span class="sc">::</span><span class="fu">tril</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; 22 x 22 Matrix of class "dtrMatrix"
 #&gt;                  aspiration doornumber carbody drivewheel enginelocation
@@ -369,16 +386,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 #&gt; highwaympg                   0.45      -0.78    0.05    0.98       1.00     .
 #&gt; price                       -0.18       0.84   -0.02   -0.74      -0.74  1.00</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>  <span class="co"># Explain what data type it is and what values it can take on</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a></span>
-<span id="cb4-3"><a href="#cb4-3"></a>first_element <span class="ot">&lt;-</span> <span class="fu">head</span>(df<span class="sc">$</span>horsepower, <span class="dv">1</span>)</span>
-<span id="cb4-4"><a href="#cb4-4"></a>min_value <span class="ot">&lt;-</span> <span class="fu">min</span>(df<span class="sc">$</span>horsepower)</span>
-<span id="cb4-5"><a href="#cb4-5"></a>max_value <span class="ot">&lt;-</span> <span class="fu">max</span>(df<span class="sc">$</span>horsepower)</span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="fu">cat</span>(<span class="st">"The chosen predictor is 'horsepower' with a data type of "</span>, <span class="fu">typeof</span>(first_element), <span class="st">" and a range between "</span>, min_value, <span class="st">" and "</span>, max_value, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>  <span class="co"># Explain what data type it is and what values it can take on</span></span>
+<span id="cb15-2"><a href="#cb15-2"></a></span>
+<span id="cb15-3"><a href="#cb15-3"></a>first_element <span class="ot">&lt;-</span> <span class="fu">head</span>(df<span class="sc">$</span>horsepower, <span class="dv">1</span>)</span>
+<span id="cb15-4"><a href="#cb15-4"></a>min_value <span class="ot">&lt;-</span> <span class="fu">min</span>(df<span class="sc">$</span>horsepower)</span>
+<span id="cb15-5"><a href="#cb15-5"></a>max_value <span class="ot">&lt;-</span> <span class="fu">max</span>(df<span class="sc">$</span>horsepower)</span>
+<span id="cb15-6"><a href="#cb15-6"></a><span class="fu">cat</span>(<span class="st">"The chosen predictor is 'horsepower' with a data type of "</span>, <span class="fu">typeof</span>(first_element), <span class="st">" and a range between "</span>, min_value, <span class="st">" and "</span>, max_value, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; The chosen predictor is 'horsepower' with a data type of  double  and a range between  48  and  288</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">cat</span>(<span class="st">"It significantly influences the price with a correlation of 84%. The positive correlation indicates that as horsepower increases, the price also increases proportionally.</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="fu">cat</span>(<span class="st">"It significantly influences the price with a correlation of 84%. The positive correlation indicates that as horsepower increases, the price also increases proportionally.</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; It significantly influences the price with a correlation of 84%. The positive correlation indicates that as horsepower increases, the price also increases proportionally.</code></pre>
 </div>
@@ -388,20 +405,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="add-seat_heating-variable-to-the-data"><strong>Add <code>seat_heating</code> variable to the data</strong></h4>
 <hr>
 <div class="cell" data-hash="03_regression_cache/html/unnamed-chunk-5_7120860079680e699bd8653d8f6ba17b">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>seat_heating_add_to_df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">seat_heating_all_true =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>), <span class="at">size =</span> <span class="fu">nrow</span>(df), <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb8-2"><a href="#cb8-2"></a></span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="co"># Check the distribution of seat_heating_all_true</span></span>
-<span id="cb8-4"><a href="#cb8-4"></a><span class="fu">table</span>(seat_heating_add_to_df<span class="sc">$</span>seat_heating_all_true)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>seat_heating_add_to_df <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">seat_heating_all_true =</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>), <span class="at">size =</span> <span class="fu">nrow</span>(df), <span class="at">replace =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb19-2"><a href="#cb19-2"></a></span>
+<span id="cb19-3"><a href="#cb19-3"></a><span class="co"># Check the distribution of seat_heating_all_true</span></span>
+<span id="cb19-4"><a href="#cb19-4"></a><span class="fu">table</span>(seat_heating_add_to_df<span class="sc">$</span>seat_heating_all_true)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; 
 #&gt; FALSE  TRUE 
 #&gt;    87    94</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># Run the regression </span></span>
-<span id="cb10-2"><a href="#cb10-2"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> seat_heating_all_true, <span class="at">data =</span> seat_heating_add_to_df)</span>
-<span id="cb10-3"><a href="#cb10-3"></a></span>
-<span id="cb10-4"><a href="#cb10-4"></a><span class="co"># Print the summary of the model</span></span>
-<span id="cb10-5"><a href="#cb10-5"></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="co"># Run the regression </span></span>
+<span id="cb21-2"><a href="#cb21-2"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(price <span class="sc">~</span> seat_heating_all_true, <span class="at">data =</span> seat_heating_add_to_df)</span>
+<span id="cb21-3"><a href="#cb21-3"></a></span>
+<span id="cb21-4"><a href="#cb21-4"></a><span class="co"># Print the summary of the model</span></span>
+<span id="cb21-5"><a href="#cb21-5"></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>#&gt; 
 #&gt; Call:
