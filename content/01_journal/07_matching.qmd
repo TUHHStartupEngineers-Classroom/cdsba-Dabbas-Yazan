@@ -1,7 +1,165 @@
 ---
 title: "Matching and Subclassification"
+author: "Yazan Dabbas"
+date: "12/21/2023"
+format: 
+    html:
+      code-line-numbers: true
+      df-print: paged
 ---
+```{r}
+#| results: false
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+
+# Load required libraries
+library(dagitty)
+library(dplyr)
+library(ggdag)
+library(ggplot2)  
+library(MatchIt)
+
+```
+
+```{r}
+# Load the Data
+df <- readRDS("C:/Master Degree/Core Qualification_Compulsory Courses/Business/Causal_Data_Science/Data/Causal_Data_Science_Data/membership.rds")
+
+# Be familiar with the data
+head(df)
+
+
+# Explore the data and check relationships between variables
+summary(df)
+cor(df)
+
+```
+
+#### **Draw DAG **
+
+----
+
+```{r}
+collider <- dagitty('dag {
+  avg_purch <- plus_membership
+  avg_purch <- age
+  avg_purch <- sex
+  avg_purch <- pre_avg_purch
+}')
+
+# Plot DAG using ggdag
+ggdag(collider) +
+  geom_dag_point() +
+  geom_dag_text(color = "white") +
+  geom_dag_edges(edge_color = "black")
+
+```
+
+#### **Compute a naive estimate of the average treatment effect **
+
+----
+```{r}
+
+# Naive estimation (not accounting for backdoors)
+
+model_naive <- lm(avg_purch ~ card   , data = df)
+summary(model_naive)
+
+```
+
+
+
+#### **Using different matching methods to obtain more precise estimates **
+
+----
+
+
+
+ **Nearest-Neighbor matching**
+----
+```{r}
+cem <- matchit(card ~ age + pre_avg_purch+sex,
+               data = df, 
+               method = 'cem', 
+               estimand = 'ATE')
+
+# Covariate balance
+summary(cem)
+
+
+# Use matched data
+
+df_cem <- match.data(cem)
+
+# Estimation
+
+model_cem <- lm(avg_purch ~ card, data = df_cem, weights = weights)
+summary(model_cem)
+
+```
+
+
+ **Exact Matching**
+----
+```{r}
+
+# replace: one-to-one or one-to-many matching
+
+nn <- matchit(card ~ age + pre_avg_purch+sex,
+              data = df,
+              method = "nearest", # changed
+              distance = "mahalanobis", # changed
+              replace = T)
+
+# Covariate Balance
+
+summary(nn)
+
+# Use matched data
+
+df_nn <- match.data(nn)
+
+# Estimation
+
+model_nn <- lm(avg_purch ~ card, data = df_nn, weights = weights)
+summary(model_nn)
+
+```
+
+ **Inverse Probability Weighting**
+----
+```{r}
+
+# Propensity scores
+
+model_prop <- glm(card ~ age + pre_avg_purch+sex,
+                  data = df,
+                  family = binomial(link = "logit"))
+summary(model_prop)
+
+# Add propensities to table
+
+df_aug <- df %>% mutate(propensity = predict(model_prop, type = "response"))
+
+df_aug
+
+# Extend data by IPW scores
+
+df_ipw <- df_aug %>% mutate(
+  ipw = (card/propensity) + ((1-card) / (1-propensity)))
+
+df_ipw
+
+# Look at data with IPW scores
+
+df_ipw %>% 
+  select(card, age, pre_avg_purch,sex, propensity, ipw)
+
+# Estimation
+
+model_ipw <- lm(avg_purch  ~ card ,
+                data = df_ipw, 
+                weights = ipw)
+
+summary(model_ipw)
+
+```

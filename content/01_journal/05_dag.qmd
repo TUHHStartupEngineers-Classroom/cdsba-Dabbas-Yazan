@@ -1,7 +1,148 @@
 ---
 title: "Directed Acyclic Graphs"
+author: "Yazan Dabbas"
+date: "12/17/2023"
+format: 
+    html:
+      code-line-numbers: true
+      df-print: paged
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
+```{r}
+ 
+# Load Required Libraries
+library(tidyverse)
+library(dagitty)
+library(ggdag)
+
+```
+
+**Draw DAG of Parking Spots Example **
+
+------------------------------------------------------------------------
+```{r}
+# Draw DAG for Sales Example
+sales_dag <- dagify(
+  sales ~ parking_spots,
+  sales ~ location,
+  parking_spots ~ location, # location is the confounder
+  labels = c(
+    "sales" = "Sales",
+    "parking_spots" = "Parking \n Spots",
+    "location" = "Location"
+  )
+)
+  ggdag(sales_dag, use_labels = "label",text= FALSE)
+  
+```
+
+
+**Load the Data **
+
+------------------------------------------------------------------------
+```{r}
+# Load the data
+customer_data <- readRDS('C:/Master Degree/Core Qualification_Compulsory Courses/Business/Causal_Data_Science/Data/Causal_Data_Science_Data/customer_sat.rds')
+
+# Be familiar with the data
+head(customer_data)
+```
+
+**Regress `satisfaction` on `follow_ups` **
+
+------------------------------------------------------------------------
+```{r}
+# Regress satisfaction on follow_ups
+  
+   ## Simple linear Regression ##
+model1 <- lm(satisfaction ~ follow_ups, data = customer_data)
+
+summary(model1)
+
+```
+
+**Regress `satisfaction` on `follow_ups` and account for `subscription` **
+
+------------------------------------------------------------------------
+```{r}
+# Regress satisfaction on follow_ups and account for subscription
+
+   ## Multiple Linear Regression
+model2 <- lm(satisfaction ~ follow_ups + subscription, data = customer_data)
+
+summary(model2)
+```
+
+**Compare the coefficients and give explanations **
+
+------------------------------------------------------------------------
+```{r}
+# Compare coefficients from the two models
+
+coef_comparison <- data.frame(
+  Model = c("Model 1", "Model 2"),
+  Intercept = c(coef(model1)[1], coef(model2)[1]),
+  FollowUps = c(coef(model1)[2], coef(model2)[2]),
+  PremiumPlus = c(0, coef(model2)[grep("subscriptionPremium\\+", names(coef(model2)))]),
+  Elite = c(0, coef(model2)[grep("subscriptionElite", names(coef(model2)))])
+)
+
+print(coef_comparison)
+
+```
+
+::: {.callout-important appearance="minimal"} 
+
+-   **The baseline of `satisfaction` is lower in Model 2  because it has a lower intercept compared to Model 1.**
+
+
+-   **Taking subscription levels into account changed the direction of the relationship between `FollowUps` and `satisfaction` (from negative impact into a positive one.**
+
+
+-   **There is a positive impact on `PremiumPlus`, while no addition impact on the `Elite` subscription level.**
+
 :::
+
+
+**Plot the Data **
+
+------------------------------------------------------------------------
+```{r}
+#| warning: false
+
+  
+# Plot the data
+
+ ### Simpson's Paradox : Subscription is the Confounder ###
+
+
+  ## Not conditioning on subscription
+
+simps_not_cond <- ggplot(customer_data, aes(x = follow_ups, y = satisfaction)) +
+  geom_point(alpha = 0.8) +
+  stat_smooth(method = "lm", se = F) +
+  labs(title = "Relationship between Follow-ups and Satisfaction",
+       x = "Follow-ups",
+       y = "Satisfaction")+
+  theme_minimal() +
+  theme(legend.position = "right") 
+
+
+  ## Conditioning on subscription
+
+simps_cond <- ggplot(customer_data, aes(x = follow_ups, y = satisfaction, color = subscription)) +
+  geom_point(alpha = 0.8) +
+  stat_smooth(method = "lm", se = F, size = 1) +
+  labs(title = "Relationship between Follow-ups and Satisfaction by Subscription Level",
+       x = "Follow-ups",
+       y = "Satisfaction",
+       color = "Subscription") +
+  theme_minimal() +
+  theme(legend.position = "right") 
+  
+
+
+simps_not_cond
+simps_cond
+
+```

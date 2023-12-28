@@ -1,7 +1,130 @@
 ---
 title: "Statistical Concepts"
+author: "Yazan Dabbas"
+date: "12/12/2023"
+format: 
+    html:
+      code-line-numbers: true
+      df-print: paged
 ---
+**Load the Data **
 
-::: callout-note
-You can delete everything in here and start fresh.
+------------------------------------------------------------------------
+```{r}
+
+# Load the data
+df <- readRDS("C:/Master Degree/Core Qualification_Compulsory Courses/Business/Causal_Data_Science/Data/Causal_Data_Science_Data/random_vars.rds")
+
+# Be familiar with the data
+head(df)
+```
+**Get an Overview of the Data **
+
+------------------------------------------------------------------------
+```{r}
+
+View(df)
+
+```
+
+
+```{r}
+
+# Store columns in variables
+age <- df$age
+income <- df$income
+
+# 1) 
+```
+**a) Calculate the Expected Value **
+
+------------------------------------------------------------------------
+```{r}
+
+expected_age <- sum(age) / length(age)
+expected_income <- sum(income) / length(income)
+
+cat("Expected age is ", expected_age, "\n")
+cat("Expected income is ", expected_income, "\n")
+```
+**b)  Calculate the Variance **
+
+------------------------------------------------------------------------
+```{r}
+mean_age <- mean(age)
+mean_income <- mean(income)
+
+variance_age <- sum((age - mean_age)^2) / (length(age) - 1)
+variance_income <- sum((income - mean_income)^2) / (length(income) - 1)
+
+cat("Age Variance is ", variance_age, "\n")
+cat("Income Variance is ", variance_income, "\n")
+```
+**c)  Calculate the Standard Deviation **
+
+------------------------------------------------------------------------
+```{r}
+SD_age <- sqrt(variance_age)
+SD_income <- sqrt(variance_income)
+cat("SD of Age is ", SD_age, "\n")
+cat("SD of Income is ", SD_income, "\n")
+
+```
+**2) Standard Deviation Comparison**
+
+------------------------------------------------------------------------
+
+::: {.callout-important appearance="minimal"} 
+
+-   **When the variables are measured in the same units and have similar scales, comparing standard deviations directly is most useful.** 
+
+-   **In the instance of age and income, the variables have distinct units and scales. As a result, directly comparing their standard deviations may not yield relevant insights.**
+
 :::
+
+**3) The Relationship Between Covariance and Correlation**
+
+------------------------------------------------------------------------
+```{r}
+covariance_value <- sum((age - mean_age) * (income - mean_income)) /length(age)
+cat("Covariance Value:", covariance_value, "\n")
+
+
+correlation_value <- covariance_value / (SD_age * SD_income)
+cat("Correlation Value:", correlation_value, "\n")
+```
+
+**4) Interpretation regarding the Relationship Between Covariance and Correlation**
+
+------------------------------------------------------------------------
+
+::: {.callout-important appearance="minimal"} 
+
+-   **The standardized scale of the correlation coefficient makes comparison easier. The fact that it goes from -1 to 1 gives for a clear grasp of the relationship's strength and direction.**
+
+:::
+ 
+ **5) Compute the Conditional Expected Value for:**
+ 
+------------------------------------------------------------------------
+```{r}
+ # 1. E[income|age<=18]
+
+subset_1 <-  df %>% filter(age <= 18)
+conditional_expected_value1 <- mean(subset_1$income)
+cat("Conditional Expected Value of Income for age <= 18:", conditional_expected_value1, "\n")
+
+# 2. E[income|age<=[18,65)]
+
+subset_2 <- df %>% filter(age >= 18 & age < 65)
+conditional_expected_value2 <- mean(subset_2$income)
+cat("Conditional Expected Value of Income for age in [18, 65):", conditional_expected_value2, "\n")
+
+#3. E[income|age>=65]
+
+subset_3 <- df %>% filter(age >= 65)
+conditional_expected_value3 <- mean(subset_3$income)
+cat("Conditional Expected Value of Income for age >= 65:", conditional_expected_value3, "\n")
+
+
+```

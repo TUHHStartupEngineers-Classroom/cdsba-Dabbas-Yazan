@@ -1,97 +1,153 @@
 ---
 title: "Probability Theory"
+author: "Yazan Dabbas"
+date: "12/10/2023"
+format: 
+    html:
+      code-line-numbers: true
+      df-print: paged
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
-
-This is a `.qmd` file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a \# in front of your text, it will create a top level-header.
-
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-# Text Formatting
-
-*italics* and **bold**
-
-superscript^2^ / subscript~2~
-
-~~strikethrough~~
-
-`verbatim code`
-
-> Blockquote
-
-# Headings
-
-## Header 2
-### Header 3
-#### Header 4
-##### Header 5
-###### Header 6
-
-# Links & Images
-
-<https://quarto.org>
-
-[Quarto](https://quarto.org)
-
-![Caption](../../assets/img/elephant.png)
-
-[![Caption](../../assets/img/elephant.png)](https://quarto.org)
-
-[![Caption](../../assets/img/elephant.png)](https://quarto.org "An elephant")
-
-
-# Lists
-
-* unordered list
-    + sub-item 1
-    + sub-item 2
-        - sub-sub-item 1
-        
-*   item 2
-
-    Continued (indent 4 spaces)
-    
-    
-1. ordered list
-2. item 2
-    i) sub-item 1
-         A.  sub-sub-item 1
-         
-(@)  A list whose numbering
-
-continues after
-
-(@)  an interruption
-
-# Tables
-
-| Right | Left | Default | Center |
-|------:|:-----|---------|:------:|
-|   12  |  12  |    12   |    12  |
-|  123  |  123 |   123   |   123  |
-|    1  |    1 |     1   |     1  |
-
-# Source Code
-
-Use ``` to delimit blocks of source code:
-
-```
-code
-```
-
-Add a language to syntax highlight code blocks:
-
 ```{r}
-1 + 1
+#|echo: false
+
+
+# Import the required Libraries 
+library(tidyverse)
+library(ggVennDiagram)
+
+```
+#### **Assignment I**
+
+----
+```{r}
+# Define probabilities
+Prob_S <- 0.3 # change in scope
+Prob_T_S <- 0.2 # change in scope-on time
+Prob_T_not_S <- 0.6 # no change in scope-on time
+
+# Calculate the complement of probabilities
+Prob_not_S <- 1 - Prob_S  # no change in scope
+Prob_not_T_S <- 1 - Prob_T_S # change in scope_not on time
+Prob_not_T_not_S <- 1 - Prob_T_not_S # no change in scope_not on time
+
+# Calculate conditional probabilities
+Prob_T_and_S <- Prob_S * Prob_T_S
+Prob_T_and_not_S <- Prob_not_S * Prob_T_not_S
+Prob_not_T_and_S <- Prob_S * Prob_not_T_S
+Prob_not_T_and_not_S <- Prob_not_S * Prob_not_T_not_S
+
+# Print Results
+print(Prob_T_and_S)
+print(Prob_T_and_not_S)
+print(Prob_not_T_and_S)
+print(Prob_not_T_and_not_S)
+
+
+
+```
+#### **Assignment II**
+
+----
+```{r}
+# Define the number of observations
+num_observations <- 1000
+
+# Generate a tibble for user device data
+user_device_data <- tibble(
+  # Assign user IDs in ascending order
+  user_id = 1:num_observations,
+  # Randomly determine smartphone usage
+  smartphone = rbinom(num_observations, 1, 0.4),
+  # Decide tablet usage, more likely if smartphone is not used
+  tablet = ifelse(smartphone == 1, rbinom(num_observations, 1, 0.2), rbinom(num_observations, 1, 0.5)),
+  # Decide computer usage, more likely if tablet is not used
+  computer = ifelse(tablet == 1, rbinom(num_observations, 1, 0.1), rbinom(num_observations, 1, 0.3))
+)
+
+# If none of the devices have a value of 1, set smartphone to 1
+user_device_data <- user_device_data %>%
+  rowwise() %>% 
+  mutate(smartphone = ifelse(sum(smartphone, tablet, computer) == 0, 1, smartphone))
+
+# Display the first ten rows
+head(user_device_data, 10)
+# Display column sums
+colSums(user_device_data)
+# Create sets of smartphone, tablet, and computer users
+set_smartphone <- which(user_device_data$smartphone == 1)
+set_tablet <- which(user_device_data$tablet == 1)
+set_computer <- which(user_device_data$computer == 1)
+
+# Combine all sets into a list
+sets_all_devices <- list(set_smartphone, set_tablet, set_computer)
+
+# Generate a Venn diagram
+ggVennDiagram(sets_all_devices, category.names = c("Smartphone", "Tablet", "Computer"),
+              label_percent_digit = 2) +
+  # Customize appearance
+  theme(legend.position = "none", 
+        panel.background = element_rect("grey"),
+        strip.background = element_rect("grey")) +
+  scale_x_continuous(expand = expansion(mult = .24))
+
+
+# Calculate the intersection of sets (users using all three devices)
+set_all_three_devices <- Reduce(intersect, sets_all_devices)
+percentage_all_three_devices <- length(set_all_three_devices) / num_observations * 100
+cat("Percentage of customers using all three devices:", round(percentage_all_three_devices, 2), "%\n")
+
+
+# Calculate the union of sets (users using at least two devices)
+set_at_least_two_devices <- union(intersect(set_smartphone, set_tablet), union(intersect(set_smartphone, set_computer), intersect(set_computer, set_tablet)))
+percentage_at_least_two_devices <- length(set_at_least_two_devices) / num_observations * 100
+cat("Percentage of customers using at least two devices:", round(percentage_at_least_two_devices, 2), "%\n")
+
+
+# Calculate the sets of users using each device exclusively
+set_only_smartphone <- set_smartphone[!(set_smartphone %in% set_tablet) & !(set_smartphone %in% set_computer)]
+set_only_tablet <- set_tablet[!(set_tablet %in% set_smartphone) & !(set_tablet %in% set_computer)]
+set_only_computer <- set_computer[!(set_computer %in% set_smartphone) & !(set_computer %in% set_tablet)]
+percentage_only_one_device <- (length(set_only_smartphone) + length(set_only_tablet) + length(set_only_computer)) / num_observations * 100
+cat("Percentage of customers using only one device:", round(percentage_only_one_device, 2), "%\n")
+
+
 ```
 
-```{r}
-cars
-```
+#### **Assignment III**
 
+----
 ```{r}
-plot(cars)
+# Probability of A
+Prob_A <- 0.04 
+
+# Probability of B given A
+Prob_B_A <- 0.97 
+
+# Probability of B given not A 
+Prob_B_not_A <- 0.01
+
+# Probability of not A
+Prob_not_A <- 1- Prob_A 
+
+# Probability of not B given A
+Prob_not_B_A <- 1 - Prob_B_A 
+
+# Probability of not B given not A
+Prob_not_B_not_A <- 1 - Prob_B_not_A 
+
+# Probability of B
+Prob_B <- (Prob_B_A*Prob_A)+(Prob_B_not_A*Prob_not_A)
+
+# Probability of not A given B
+Prob_not_A_given_B <- (Prob_B_not_A * Prob_not_A)/Prob_B
+
+# Probability of A given B
+Prob_A_given_B <- (Prob_B_A * Prob_A)/Prob_B
+
+# Print Results
+print(Prob_not_A_given_B)
+
+print(Prob_A_given_B)
+
 ```

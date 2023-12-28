@@ -1,7 +1,107 @@
 ---
 title: "Regression and Statistical Inference"
+author: "Yazan Dabbas"
+date: "12/16/2023"
+format: 
+    html:
+      code-line-numbers: true
+      df-print: paged
+---
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
+```{r}
+
+# Load required libraries
+library(dplyr)
+library(modelr)
+
+```
+
+
+#### **Load the Data and Check the Dimensions**
+
+----
+```{r}
+df <- readRDS("C:/Master Degree/Core Qualification_Compulsory Courses/Business/Causal_Data_Science/Data/Causal_Data_Science_Data/car_prices.rds")
+
+# Be familiar with the data
+head(df)
+
+#  Check the number of rows and columns 
+dim_data <- dim(df)
+rows <- dim_data[1]
+columns <- dim_data[2]
+
+cat("Rows Number: ", rows, "\n")
+cat("Columns Number: ", columns, "\n")
+
+```
+
+#### **Get a more detailed look at the data**
+
+----
+```{r}
+
+ ## Check what data type the data has 
+col_names <- lapply(df, colnames)
+first_element <- head(df$carwidth, 1)
+cat("carwidth's type is ", typeof(first_element), "\n")
+
+first_element <- head(df$carbody, 1)
+cat("carbody's type is ", typeof(first_element), "\n")
+cat("Two types in the data: character and double")
+
+
+```
+
+#### **Choose one Regressor `(horsepower)`**
+
+----
+```{r}
+#| warning: false
+
+# Display the structure of the data frame
+df[] <- lapply(df, as.numeric)
+df %>%
+  # Calculate the correlation matrix
+  cor() %>% 
+  # Round the correlation values to 2 decimal places
+  round(2) %>% 
+  # Extract the lower triangular part of the matrix
+  Matrix::tril()
+
+  
+  # Explain what data type it is and what values it can take on
+
+first_element <- head(df$horsepower, 1)
+min_value <- min(df$horsepower)
+max_value <- max(df$horsepower)
+cat("The chosen predictor is 'horsepower' with a data type of ", typeof(first_element), " and a range between ", min_value, " and ", max_value, "\n")
+
+cat("It significantly influences the price with a correlation of 84%. The positive correlation indicates that as horsepower increases, the price also increases proportionally.\n")
+
+```
+
+#### **Add `seat_heating` variable to the data**
+
+----
+```{r}
+seat_heating_add_to_df <- df %>% mutate(seat_heating_all_true = sample(c(TRUE, FALSE), size = nrow(df), replace = TRUE))
+
+# Check the distribution of seat_heating_all_true
+table(seat_heating_add_to_df$seat_heating_all_true)
+
+# Run the regression 
+model <- lm(price ~ seat_heating_all_true, data = seat_heating_add_to_df)
+
+# Print the summary of the model
+summary(model)
+
+
+
+```
+::: {.callout-important appearance="minimal"}
+
+-   **Assigning all values for `seat_heating` as true may result in no variation. This can cause challenges in regression analysis, such as collinearity and difficulty estimating coefficients..**
+
 :::

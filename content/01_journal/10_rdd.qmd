@@ -1,7 +1,166 @@
 ---
 title: "Regression Discontinuity"
----
+author: "Yazan Dabbas"
+date: "12/26/2023"
+format: 
+    html:
+      code-line-numbers: true
+      df-print: paged
 
-::: callout-note
-You can delete everything in here and start fresh.
+---
+----
+```{r}
+
+# Load required libraries
+library(dplyr)
+library(ggplot2)
+
+
+# Read data for the current campaign
+df <- readRDS('C:/Master Degree/Core Qualification_Compulsory Courses/Business/Causal_Data_Science/Data/Causal_Data_Science_Data/coupon.rds')
+
+```
+
+#### **Regression Discontinuity Design Sensitivity Analysis**
+
+----
+```{r}
+# Define cut-off
+c0 <- 60
+
+# Bandwidths
+bw_orignal <- c0 + c(-5,5)
+bw_half <- c0 + c(-5,5) / 2
+bw_double <- c0 + c(-5,5) * 2
+
+```
+
+ **Function to run the regression discontinuity design analysis**
+ 
+----
+```{r}
+
+
+
+run_rdd_analysis <- function(df, bw) {
+  
+  df_bw_below <- df %>% filter(days_since_last >= bw[1] & days_since_last < c0)
+  df_bw_above <- df %>% filter(days_since_last >= c0 & days_since_last <= bw[2])
+  df_bw <- bind_rows(df_bw_above, df_bw_below)
+  
+  lm_bw <- lm(purchase_after ~ days_since_last_centered + coupon, df_bw)
+  
+  
+  model_bw_below <- lm(purchase_after ~ days_since_last, df_bw_below)
+  model_bw_above <- lm(purchase_after ~ days_since_last, df_bw_above)
+  
+  y0 <- predict(model_bw_below, tibble(days_since_last = c0))
+  y1 <- predict(model_bw_above, tibble(days_since_last = c0))
+  
+  late <- y1 - y0
+  return(list(LATE = late, Summary = summary(lm_bw)))
+}
+
+```
+
+ **Use the Function for Different Bandwidths**
+ 
+----
+```{r}
+# Run the analysis with original bandwidth
+LATE_original <- run_rdd_analysis(df, bw_orignal)
+
+# Run the analysis with half the bandwidth
+LATE_half_bandwidth <- run_rdd_analysis(df, bw_half)
+
+# Run the analysis with double the bandwidth
+LATE_double_bandwidth <- run_rdd_analysis(df, bw_double)
+
+```
+----
+1. **Original Bandwidth**
+----
+
+The LATE and the Summary of Using the Original Bandwidth
+```{r}
+#| code-fold: true
+
+# Print the results for the original bandwidth
+cat("LATE:", LATE_original$LATE, "\n")
+print(LATE_original$Summary)
+```
+----
+2.  **Half the Bandwidth**
+----
+
+The LATE and the Summary of Using Half the Bandwidth
+```{r}
+#| code-fold: true
+
+# Print the results for half the bandwidth
+cat("LATE:", LATE_half_bandwidth$LATE, "\n")
+print(LATE_half_bandwidth$Summary)
+```
+----
+3.  **Double the Bandwidth**
+----
+
+The LATE and the Summary of Using Double the Bandwidth
+```{r}
+#| code-fold: true
+
+
+# Print the results for double the bandwidth
+cat("LATE:", LATE_double_bandwidth$LATE, "\n")
+print(LATE_double_bandwidth$Summary)
+```
+
+::: {.callout-important appearance="minimal"}
+-   **There is no change in the three bandwidth choices on the statistical effect (positive effect of coupon variable on purchase_after.**
+
+-   **The estimated LATE is slightly lower for the half bandwidth than the original bandwidth, suggesting a more conservative estimate.**
+
+-   **The estimated LATE is higher for the double bandwidth than the original bandwidth, suggesting a potentially broader impact on individuals farther from the cutoff point.**
+
+-   **Bandwidth choice influences treatment `(coupuonTRUE)` effect estimation.**
+
+-   **Coefficients vary with bandwidth changes**
 :::
+
+### **Different Past Campaign**
+
+----
+```{r}
+#| warning: false
+
+# Read data for the different past campaign
+
+df_shipping <- readRDS('C:/Master Degree/Core Qualification_Compulsory Courses/Business/Causal_Data_Science/Data/Causal_Data_Science_Data/shipping.rds')
+
+# Manipulation Testing Using Local Polynomial Density Estimation
+library(rddensity) 
+rddd <- rddensity(df_shipping$purchase_amount, c = 30) 
+
+summary(rddd)
+
+```
+
+::: {.callout-important appearance="minimal"}
+-   **The manipulation tests indicate significant evidence of manipulation around the cut-off point (c=30).**
+
+-   **P-values of the robust T-statistic are close to zero, suggesting that there are systematic changes in the observed density of the `purchase_amount` variable near the cut-off.**
+
+-   **The order of estimation and bias is also different on each side, suggesting a lack of smoothness or continuity.**
+
+-   **The p-values of binomial tests provide further evidence of non-random behavior around the cut-off.**
+
+-   **The `purchase_amount` variable, based on the results of manipulation testing, may not be appropriate as a running variable for an RDD with a cut-off at 30€.**
+:::
+----
+**Plot to confirm that `purchase_amount` could not be used as a running variable at 30**
+----
+```{r}
+
+ggplot(df_shipping, aes(x = purchase_amount)) + geom_histogram(binwidth = 5, fill = "blue", color = "white") + geom_vline(xintercept = 30, color = "red", linetype = "dashed") + xlab("Purchase Amount (€)") + ylab("Number of Purchases") + theme_minimal()
+
+```

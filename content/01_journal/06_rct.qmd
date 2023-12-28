@@ -1,7 +1,146 @@
 ---
 title: "Randomized Controlled Trials"
+author: "Yazan Dabbas"
+date: "12/19/2023"
+format: 
+    html:
+      code-line-numbers: true
+      df-print: paged
 ---
+```{r}
 
-::: callout-note
-You can delete everything in here and start fresh.
+# Load required libraries
+library(ggplot2)
+
+```
+
+```{r}
+# Load the Data
+df <- readRDS("C:/Master Degree/Core Qualification_Compulsory Courses/Business/Causal_Data_Science/Data/Causal_Data_Science_Data//abtest_online.rds")
+
+# Be familiar with the data
+head(df)
+
+```
+
+#### **Plot independent and and dependent difference**
+
+----
+```{r}
+# purchase_amount (dependent)
+
+purchase_amount_comp <- 
+  ggplot(df, 
+         aes(x = chatbot, 
+             y = purchase_amount, 
+             color = as.factor(chatbot))) +
+  stat_summary(geom = "errorbar", 
+               width = .5,
+               fun.data = "mean_se", 
+               fun.args = list(mult=1.96),
+               show.legend = F) +
+  labs(x = NULL, y = "purchase_amount", title = "Difference in purchase amount")+
+  scale_x_discrete(labels = c("Not Treated","Treated"))
+
+
+# previous_visit (independent)
+
+previous_visit_comp <- 
+  ggplot(df, 
+         aes(x = chatbot, 
+             y = previous_visit, 
+             color = as.factor(chatbot))) +
+  stat_summary(geom = "errorbar", 
+               width = .5,
+               fun.data = "mean_se", 
+               fun.args = list(mult=1.96),
+               show.legend = F) +
+  labs(x = NULL, y = "previous_visit", title = "Difference in previous visit")+
+  scale_x_discrete(labels = c("Not Treated","Treated"))
+
+
+# mobile_device (independent)
+mobile_device_comp <- 
+  ggplot(df, 
+         aes(x = chatbot, 
+             y = mobile_device, 
+             color = as.factor(chatbot))) +
+  stat_summary(geom = "errorbar", 
+               width = .5,
+               fun.data = "mean_se", 
+               fun.args = list(mult=1.96),
+               show.legend = F) +
+  labs(x = NULL, y = "mobile_device", title = "Difference in mobile device")+
+  scale_x_discrete(labels = c("Not Treated","Treated"))
+
+# purchase (dependent)
+
+purchase_comp <- 
+  ggplot(df, 
+         aes(x = chatbot,
+             y = purchase, 
+             color = as.factor(chatbot))) +
+  stat_summary(geom = "errorbar", 
+               width = .5,
+               fun.data = "mean_se", 
+               fun.args = list(mult=1.96),
+               show.legend = F) +
+  labs(x = NULL, y = "purchase", title = "Difference in purchase")+
+  scale_x_discrete(labels = c("Not Treated","Treated"))
+
+# Plot the Comparisons
+
+purchase_amount_comp
+previous_visit_comp
+mobile_device_comp
+purchase_comp
+```
+
+#### **Linear Regression to find the effect of `chatbot` on `sales`**
+
+----
+
+```{r}
+
+model1 <- lm(purchase ~ chatbot, data = df)
+summary(model1)
+model2 <- lm(purchase_amount ~ chatbot, data = df)
+summary(model2)
+```
+
+
+#### **Compute CATE for `mobile_device`**
+
+----
+```{r}
+model3 <- lm(purchase ~ chatbot * mobile_device, data = df)
+summary(model3)
+
+model4 <- lm(purchase_amount ~ chatbot * mobile_device, data = df)
+summary(model4)
+
+
+```
+
+
+#### **Logistic regression model**
+
+----
+```{r}
+log_model <- glm(purchase ~ chatbot, family = binomial(link = 'logit'), data = df)
+
+summary(log_model)
+
+```
+
+::: {.callout-important appearance="minimal"}
+
+-   **The chatbot_true coefficient is very intriguing. Because it has a negative estimate, it implies that the existence of the `chatbot` is related with a drop in the log-odds of making a purchase as compared to when the `chatbot` is not present.**
+
+-   **The fact that the p-value is less than 0.001 implies that the effect is statistically significant. In simpler terms, the model implies that when the `chatbot` is there, consumers are less likely to make a purchase, and this effect is unlikely to be attributable to chance.**
+
+-   **Model fit statistics include the null and residual deviance as well as the AIC (Akaike Information Criterion).**
+
+-   **In general, lower AIC values suggest better-fitting models. The residual deviation is `1273.3` on `998` degrees of freedom in this situation, and the AIC is `1277.3`**.
+
 :::

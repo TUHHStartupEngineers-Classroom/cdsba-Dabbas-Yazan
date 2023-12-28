@@ -1,7 +1,145 @@
 ---
 title: "Instrumental Variables"
+author: "Yazan Dabbas"
+date: "12/25/2023"
+format: 
+    html:
+      code-line-numbers: true
+      df-print: paged
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
+```{r}
+
+# Load required libraries
+library(tidyverse)
+library(dagitty)
+library(ggdag)
+library(estimatr)
+library(AER)
+```
+
+**First Question: **
+
+------------------------------------------------------------------------
+
+```{r}
+# Define the DAG
+dag <- dagify(
+  spentTime ~ featureUsed,
+  spentTime ~ Unobserved,
+  featureUsed ~ Unobserved,
+  featureUsed ~ encourgement,
+  exposure = "featureUsed",
+  latent = "Unobserved",
+  outcome = "spentTime",
+  coords = list(x = c(Unobserved = 1, featureUsed = 0, spentTime = 2, encourgement = -1),
+                y = c(Unobserved = 1, featureUsed = 0, spentTime = 0, encourgement = 0)),
+  labels = c(
+    "spentTime" = "Time Spent on the App",
+    "featureUsed" = "The new feature is used",
+    "encourgement" = "User encourgement to use feature",
+    "Unobserved" = "Unobserved variables"
+  )
+)
+# Plot DAG
+ggdag(dag, text = FALSE, use_labels = "label")
+
+
+```
+
+```{r}
+
+#Load the data
+df <- readRDS('C:/Master Degree/Core Qualification_Compulsory Courses/Business/Causal_Data_Science/Data/Causal_Data_Science_Data/rand_enc.rds')
+
+
+# Be familiar with the data
+
+head(df)
+
+```
+
+**Second Question: **
+
+------------------------------------------------------------------------
+
+```{r}
+#| warning: false
+
+
+# Compute Naive Estimate
+naive_estimate <- lm(time_spent ~ used_ftr, data = df)
+
+summary(naive_estimate)
+```
+
+**Third Question: **
+
+------------------------------------------------------------------------
+```{r}
+# Check the correlation matrix
+cor(df) %>% round(2)
+
+```
+  
+::: {.callout-important appearance="minimal"} 
+
+-   **Since the naive estimate (10.82269) is greater than the IV robust estimate using rand_enc as an instrument (9.738175), we would consider the naive estimate to have an upward bias.**
+
+-   **This implies that the naive estimate overestimates the effect of `used_ftr` on `time_spent`.**
+  
+-   **A strong correlation between `used_ftr` and `time_spent` can be seen.**
+
+-   **Assuming `rand_enc` as an Instrumental variable would make sense, because it has a weak correlation with the outcome `(time_spent)` and a stronger one with the treatment `(used_ftr)`.**
+
+-   **While the correlation between Instrumental variable and outcome is not  zero (maybe due to noise), this correlation is relatively low.**
+
+:::
+
+
+**Fourth Question: **
+
+------------------------------------------------------------------------
+```{r}
+
+# Instrumental Variable Estimation using 2SLS with rand_enc and robust standard errors
+
+model_iv_robust <- iv_robust(time_spent ~ used_ftr | rand_enc, data = df)
+summary(model_iv_robust)
+
+
+## Hansen J test
+
+# Extract residuals and fitted values from the model
+residuals_iv <- residuals(model_iv_robust)
+fitted_values_iv <- fitted(model_iv_robust)
+
+# Perform Hansen J test
+hansen_test_stat <- sum(residuals_iv * fitted_values_iv)
+p_value_hansen <- 1 - pchisq(hansen_test_stat, df = 1)
+
+# Display results
+cat("Hansen J Test Statistic:", hansen_test_stat, "\n")
+cat("P-value:", p_value_hansen, "\n")
+```
+
+::: {.callout-important appearance="minimal"}
+
+-   **Hansen J test with a test statistic close to 0 and a p-value close to 1 indicates that the instrument used in the model is not violating the over-identifying restrictions.**
+
+-   **In other words, the instrument is valid for the model, and there is no evidence to suggest that the instrument is endogenous or correlated with the error term.** 
+  
+:::
+
+```{r}
+cat("Naive Estimate:", coef(naive_estimate)['used_ftr'], "\n")
+cat("IV Robust Estimate (rand_enc):", model_iv_robust$coefficients['used_ftr'], "\n")
+```
+
+::: {.callout-important appearance="minimal"}
+
+-   **Since the naive estimate (10.82269) is greater than the IV robust estimate using rand_enc as an instrument (9.738175), we would consider the naive estimate to have an upward bias.**
+
+-   **This implies that the naive estimate overestimates the effect of used_ftr on time_spent.**
+  
 :::

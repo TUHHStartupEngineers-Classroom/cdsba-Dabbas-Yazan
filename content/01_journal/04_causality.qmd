@@ -1,7 +1,43 @@
 ---
 title: "Causality"
+subtitle: " Example of Spurious Correlations from the Internet"
+author: "Yazan Dabbas"
+date: "12/16/2023"
+format: 
+    html:
+      code-line-numbers: true
+      df-print: paged
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+```{r}
+
+# Loading the ggplot2 library
+library(ggplot2)
+
+```
+
+```{r}
+# Simulating a dataset for the correlation between Facebook friends and academic performance with a potential confounding variable (study hours)
+
+# Generate sample data for a few students
+set.seed(123)
+students <- c("Alice", "Bob", "Charlie", "David", "Eve")
+facebook_friends <- rpois(length(students), lambda = 300)
+academic_performance <- rnorm(length(students), mean = 75, sd = 10)
+study_hours <- rnorm(length(students), mean = 20, sd = 5)
+
+# Creating a dataframe
+data <- data.frame(Student = students, FacebookFriends = facebook_friends, AcademicPerformance = academic_performance, StudyHours = study_hours)
+
+
+
+# Creating a scatter plot with color representing study hours
+ggplot(data, aes(x = FacebookFriends, y = AcademicPerformance, color = StudyHours)) +
+  geom_point() +
+  labs(title = "Spurious Correlation: Facebook Friends vs Academic Performance",
+       x = "Facebook Friends",
+       y = "Academic Performance",
+       color = "Study Hours") +
+  theme_minimal()
+
+```

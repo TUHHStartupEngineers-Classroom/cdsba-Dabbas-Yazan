@@ -1,0 +1,18 @@
+{
+  "hash": "974ad974148aa8f2cef6cb2cfe73eb35",
+  "result": {
+    "markdown": "---\ntitle: \"Causality\"\nsubtitle: \" Example of Spurious Correlations from the Internet\"\nauthor: \"Yazan Dabbas\"\ndate: \"12/16/2023\"\nformat: \n    html:\n      code-line-numbers: true\n      df-print: paged\n---\n\n::: {.cell hash='04_causality_cache/html/unnamed-chunk-1_2e4733bdbaab8a8b82d0f54c021139da'}\n\n```{.r .cell-code}\n# Loading the ggplot2 library\nlibrary(ggplot2)\n```\n:::\n\n::: {.cell hash='04_causality_cache/html/unnamed-chunk-2_36cef239dc0aa219c724b92ceb7fdeff'}\n\n```{.r .cell-code}\n# Simulating a dataset for the correlation between Facebook friends and academic performance with a potential confounding variable (study hours)\n\n# Generate sample data for a few students\nset.seed(123)\nstudents <- c(\"Alice\", \"Bob\", \"Charlie\", \"David\", \"Eve\")\nfacebook_friends <- rpois(length(students), lambda = 300)\nacademic_performance <- rnorm(length(students), mean = 75, sd = 10)\nstudy_hours <- rnorm(length(students), mean = 20, sd = 5)\n\n# Creating a dataframe\ndata <- data.frame(Student = students, FacebookFriends = facebook_friends, AcademicPerformance = academic_performance, StudyHours = study_hours)\n\n\n\n# Creating a scatter plot with color representing study hours\nggplot(data, aes(x = FacebookFriends, y = AcademicPerformance, color = StudyHours)) +\n  geom_point() +\n  labs(title = \"Spurious Correlation: Facebook Friends vs Academic Performance\",\n       x = \"Facebook Friends\",\n       y = \"Academic Performance\",\n       color = \"Study Hours\") +\n  theme_minimal()\n```\n\n::: {.cell-output-display}\n![](04_causality_files/figure-html/unnamed-chunk-2-1.png){width=672}\n:::\n:::",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {
+      "include-in-header": [
+        "<link href=\"../../site_libs/pagedtable-1.1/css/pagedtable.css\" rel=\"stylesheet\" />\r\n<script src=\"../../site_libs/pagedtable-1.1/js/pagedtable.js\"></script>\r\n"
+      ]
+    },
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
